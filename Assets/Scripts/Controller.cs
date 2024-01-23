@@ -5,12 +5,13 @@ using UnityEngine.UI;
 
 public class Controller : MonoBehaviour
 {
+    //mainstat upgrades based on character, hardcoded to be stamina regen for prototyping
     Rigidbody2D body;
     public static Controller player = null;
     bool charging = false, damaging = false, invulnerable = false;
     float vert = 0f, hori = 0f;
     public float speed = 250f, dampening = 1.1f, damage = 10f, knockback = 1f, curr_hp = 10f, 
-                 max_hp = 10f, curr_stam = 10f, max_stam = 10f, stam_regen = .1f, dash_cost = 2f,
+                 max_hp = 10f, curr_stam = 10f, max_stam = 10f, base_stam_regen = 1f, curr_stam_regen = 1f, dash_cost = 2f,
                  exp = 0f;
     public int level;
     Vector2 dashDir;
@@ -37,7 +38,7 @@ public class Controller : MonoBehaviour
         if (!charging) {
             if (Input.GetMouseButtonDown(0) && curr_stam > dash_cost) StartCoroutine(ChargeDash(vert, hori));
             else if (curr_stam < max_stam) {
-                curr_stam = Mathf.Min(max_stam, curr_stam + stam_regen * Time.deltaTime);
+                curr_stam = Mathf.Min(max_stam, curr_stam + curr_stam_regen * Time.deltaTime);
                 HUDManager.HUDMANAGER.UpdateStam(curr_stam, max_stam);
             }
         }
@@ -114,12 +115,18 @@ public class Controller : MonoBehaviour
         while (exp >= req_exp) {
             exp -= req_exp;
             level++;
+            print("YOU LEVELED UP!");
             req_exp = CalculateRequiredEXP(level);
         }
     }
 
     public void AwardExp(float amount) {
         exp += amount;
+        print($"You got {amount} exp!!");
         CheckLevel();
     }
+
+    public float RollStatIncrease(float min_roll, float max_roll) {
+        return Random.Range(min_roll, max_roll);
+    } 
 }

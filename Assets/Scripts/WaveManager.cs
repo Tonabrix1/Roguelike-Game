@@ -4,24 +4,24 @@ using UnityEngine;
 
 public class WaveManager : MonoBehaviour
 {
-    public float timer = 0f, cooldown = 10f, min_spawn_radius = 10f, max_spawn_radius = 15f;
+    public float timer = 10f, cooldown = 10f, min_spawn_radius = 10f, max_spawn_radius = 15f;
     public int wave_count = 0;
-    bool spawning = false;
+    bool spawning = false, game_over = false;
     public List<Wave> waves = new List<Wave>();
 
     void Update()
     {
-        if (timer <= 0f && !spawning) {
-            StartCoroutine(SpawnWave(cooldown));
-            timer = cooldown;
-            wave_count++;
-            return;
-        }
-        timer -= Time.deltaTime;
+        if (timer <= 0f && !spawning && !game_over) StartCoroutine(SpawnWave(cooldown));
+        else timer -= Time.deltaTime;
     }
     
     IEnumerator SpawnWave(float wave_time) {
         spawning = true; //spawning : flag to avoid race conditions
+        if (wave_count >= waves.Count) {
+            game_over = true;
+            print("GAME OVER!!");
+            yield break;
+        }
         Wave curr_wave = waves[wave_count]; 
         List<int> curr_num_waves = curr_wave.num_waves, curr_num_spawns = curr_wave.num_spawns;
 
@@ -48,6 +48,8 @@ public class WaveManager : MonoBehaviour
         }
         
         spawning = false;
+        timer = cooldown;
+        wave_count++;
     }
 
     Vector2 SpawnRange(Vector2 center, float min, float max) {
